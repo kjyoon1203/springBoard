@@ -12,10 +12,31 @@
 <meta name="author" content="">
 <link rel="icon" href="../../favicon.ico">
 
+<script src="/SE2/js/HuskyEZCreator.js"></script>
 <title>게시판</title>
 <%@include file="../commonJsp/basicLib.jsp" %>
 <script>
+	var oEditors = [];
 	$(function(){
+		// Editor Setting
+		nhn.husky.EZCreator.createInIFrame({
+			oAppRef : oEditors, // 전역변수 명과 동일해야 함.
+			elPlaceHolder : "smarteditor", // 에디터가 그려질 textarea ID 값과 동일 해야 함.
+			sSkinURI : "${cp}/SE2/SmartEditor2Skin.html", // Editor HTML
+			fCreator : "createSEditor2", // SE2BasicCreator.js 메소드명이니 변경 금지 X
+			htParams : {
+				// 툴바 사용 여부 (true:사용/ false:사용하지 않음)
+				bUseToolbar : true,
+				// 입력창 크기 조절바 사용 여부 (true:사용/ false:사용하지 않음)
+				bUseVerticalResizer : true,
+				// 모드 탭(Editor | HTML | TEXT) 사용 여부 (true:사용/ false:사용하지 않음)
+				bUseModeChanger : false, 
+			}, 
+			fOnAppLoad : function(){
+				oEditors.getById["smarteditor"].exec("PASTE_HTML", [$("#postCont").val()]);
+			}
+		});
+		
 		$(".glyphicon-remove").click(function(){
 			$(this).parents().find(".fileDiv").remove();
 		});
@@ -79,8 +100,9 @@
 					<div class="form-group">
 						<label for="userId" class="col-sm-2 control-label">글내용</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" id="postCont" name="postCont"
-								value="${post.POSTCONT}">
+							<textarea cols="20" rows="20" class="form-control" id="smarteditor" name="postCont"></textarea>
+							<input type="hidden" class="form-control" id="postCont"
+								value='${post.POSTCONT}'>
 						</div>
 					</div>
 

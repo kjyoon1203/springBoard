@@ -206,8 +206,8 @@ public class PostController {
 	
 	@RequestMapping(path = "postModify", method = RequestMethod.GET)
 	public String postModifyView(@RequestParam(defaultValue = "1") int boardNo
-							,@RequestParam(defaultValue = "1") int postNo
-							,Model model){
+								,@RequestParam(defaultValue = "1") int postNo
+								,Model model){
 		
 		model.addAttribute("boardList", boardService.getBoardList());
 		model.addAttribute("boardNo", boardNo);
