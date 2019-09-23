@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="post">
+	<!-- 해당 게시판의 게시글 전체 조회 -->
+	<select id="getPostAllList" parameterType="Integer" resultType="post">
+		select 	* 
+		from 	post
+		where 	boardno = #{boardno}
+	</select>
+	
+	<!-- 게시글의 작성자 조회 -->
+  	<select id="getPostingUser" parameterType="Integer" resultType="String">
+  		select 	userId
+  		from 	post
+  		where 	postNo = #{postNo}
+  	</select>
+
+  	<!-- 게시글 페이징 리스트(10개씩) 조회 -->
+  	<select id="getPostPagingList" parameterType="map" resultType="map">
+  		select
+              a.*
+          from
+          (
+              select 
+                    rownum as rn                    
+                , a.*
+            from     
+                (
+                    select 
+                         BOARDNO
+						,PARENTPOSTNO
+						,POSTNO
+						,USERID
+						,lpad(' ', (level-1)*4, ' ')||POSTTITLE POSTTITLE
+						,POSTCONT
+						,to_char(POSTREGIDATE, 'YYYY-MM-DD') POSTREGIDATE
+						,DELETEYN
+						,level
+                    from
+                    	post
+                    where                            
+                        boardNo = #{boardNo}            
+                    start with parentpostno is null
+					connect by prior postno = parentpostno
+					order siblings by postno desc
+            ) a                
+        ) a  
+        where
+            1=1			
+			and rn between #{startIdx} and #{endIdx}
+  	</select>
+  	
+  	<!-- 해당 게시판의 게시글 수 조회 -->
+  	<select id="getPostTotalCnt" parameterType="map" resultType="Integer">
+  		select 	count(*)
+  		from	post
+  		where 	boardno = #{boardNo}
+  	</select>
+  	
+  	<resultMap type="HashMap" id="getPostResult">
+  		<result property="BOARDNO" column="BOARDNO"/>
+  		<result property="PARENTPOSTNO" column="PARENTPOSTNO"/>
+  		<result property="POSTNO" column="POSTNO"/>
+  		<result property="USERID" column="USERID"/>
+  		<result property="POSTTITLE" column="POSTTITLE"/>
+  		<result property="POSTCONT" column="POSTCONT" jdbcType="CLOB" javaType="java.lang.String"/>
+  		<result property="POSTREGIDATE" column="POSTREGIDATE"/>
+  		<result property="DELETEYN" column="DELETEYN"/>
+  	</resultMap>
+  	
+  	<!-- 해당 게시글 조회 -->
+  	<select id="getPost" parameterType="Integer" resultMap="getPostResult">
+  		select	BOARDNO
+				,PARENTPOSTNO
+				,POSTNO
+				,USERID
+				,POSTTITLE
+				,POSTCONT
+				,POSTREGIDATE
+				,DELETEYN
+  		from	post
+  		where	postNo = #{postNo}
+  	</select>
+  	
+  	<!-- 게시글 등록 -->
+  	<insert id="insertPost" parameterType="map">
+  		insert into post(BOARDNO
+						,PARENTPOSTNO
+						,POSTNO
+						,USERID
+						,POSTTITLE
+						,POSTCONT
+						,POSTREGIDATE
+						,DELETEYN)
+		values ( #{boardNo}
+				,CASE WHEN #{parentPostNo, jdbcType=INTEGER} = 0 THEN NULL
+				 ELSE #{parentPostNo, jdbcType=INTEGER} END
+				,POST_SEQ.nextval
+				,#{userId}
+				,#{postTitle}
+				,#{postCont}
+				,sysdate
+				,'N')
+  		<selectKey keyProperty="postNo" resultType="Integer">
+  			select	POST_SEQ.currval
+  			from	dual
+  		</selectKey>
+  	</insert>
+  	
+  	<!-- 게시글 삭제 -->
+  	<update id="deletePost" parameterType="Integer">
+  		update	post
+  		set		deleteYN = 'Y'
+  		where	postNo = #{postNo}
+  	</update>
+  	
+  	<!-- 게시글 수정 -->
+  	<update id="updatePost" parameterType="map">
+  		update	post
+  		set		POSTTITLE	 = #{postTitle}
+			   ,POSTCONT	 = #{postCont}
+			   ,POSTREGIDATE = sysdate
+		where	postNo = #{postNo}
+  	</update>
+</mapper>

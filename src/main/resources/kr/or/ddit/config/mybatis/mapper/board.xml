@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="board">
+	<!-- 게시판 목록 조회 -->
+	<select id="getBoardList" resultType="board">
+		select 	*
+		from 	board
+	</select>
+	
+	<!-- 게시판 조회 -->
+	<select id="getBoard" resultType="board">
+		select	*
+		from 	board
+		where	boardNo = #{boardNo}
+	</select>
+	
+	<!-- 게시판 생성 -->
+	<insert id="insertBoard" parameterType="map">
+		insert into board(boardNo						  
+						  ,boardNm
+						  ,useYN
+						  ,boardRegiDate
+						  ,userId)
+		values (board_seq.nextval				
+				,#{board.boardNm}
+				,#{board.useYN}
+				,sysdate
+				,#{userId})
+	</insert>
+	
+	<!-- 게시판 수정 -->
+	<update id="updateBoard" parameterType="map">
+		update 	
+			board
+		set		
+			boardNm = #{board.boardNm}
+			,useYN = #{board.useYN}
+			,boardRegiDate = sysdate
+			,userId = #{userId}
+		where
+			boardNo = #{board.boardNo}
+	</update>
+</mapper>

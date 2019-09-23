@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="attachment">
+	<!-- 해당 게시글의 첨부파일 조회 -->
+	<select id="getAttachedFile" parameterType="Integer" resultType="attachment">
+		select 	*
+		from	attachment
+		where	postNo = #{postNo}
+	</select>
+	
+	<!-- 첨부파일 조회 -->
+	<select id="getFile" parameterType="Integer" resultType="attachment">
+		select	*
+		from 	attachment
+		where	fileNo = #{fileNo}
+	</select>
+	
+	<!-- 첨부파일 등록 -->
+	<insert id="insertAttachedFile" parameterType="map">
+		insert into	attachment 	(FILENO
+								,POSTNO
+								,FILEUPLOADNM
+								,FILEREALNM)
+		values(ATTACHEDFILE_SEQ.nextval
+			  ,#{postNo}
+			  ,#{fileUploadNm}
+			  ,#{fileRealNm})
+	</insert>
+	
+	<!-- 첨부파일 삭제 -->
+	<delete id="deleteAttachedFile" parameterType="Integer">
+		delete from attachment
+		where	fileNo = #{fileNo}
+	</delete>
+</mapper>
